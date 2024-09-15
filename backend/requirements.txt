@@ -1,0 +1,13 @@
+Django==4.2.4
+djangorestframework==3.14.0
+Pillow==9.2.0   # For handling image uploads (avatars)
+psycopg2-binary==2.9.7 # PostgreSQL database adapter
+drf-spectacular==0.25.1
+drf-spectacular-sidecar==2024.7.1
+djangorestframework-simplejwt==5.2.2  # For JWT authentication
+requests==2.32.3
+django-cors-headers==4.3.1
+django-allauth==0.53.0
+dj-rest-auth==2.2.8
+google-api-python-client==2.145.0
+python-dotenv==1.0.1
