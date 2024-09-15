@@ -24,3 +24,5 @@ git_bk/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+*/__pycache__/*

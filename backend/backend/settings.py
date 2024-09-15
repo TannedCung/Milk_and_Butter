@@ -146,6 +146,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ),
 }
 
 SIMPLE_JWT = {
@@ -189,4 +192,15 @@ SOCIALACCOUNT_PROVIDERS = {
             'access_type':'online',
         }
     }
+}
+
+SPECTACULAR_SETTINGS = {
+    # available SwaggerUI configuration parameters
+    # https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,
+        "displayOperationId": True,
+    },
+    'COMPONENT_SPLIT_REQUEST': True,
 }
