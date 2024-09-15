@@ -1,0 +1,20 @@
+.google-login-button {
+    background-color: #fff;
+    color: #000;
+    border: 2px solid #000;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 15px;
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    box-sizing: border-box; /* Ensure padding and border are part of the element's size */
+    appearance: none; /* Remove default button styles */
+    outline: none; /* Remove default focus outline */
+}
+
+.google-login-button:hover {
+    background-color: #f5f5f5;
+}
