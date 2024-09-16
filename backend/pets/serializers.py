@@ -1,7 +1,5 @@
 from rest_framework import serializers
-
-from .models import Pet, HealthStatus, Owner
-
+from django.contrib.auth.models import User
 
 from rest_framework import serializers
 from .models import Owner, Pet, HealthStatus
@@ -29,11 +27,11 @@ class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
     class Meta:
-        model = Owner
+        model = User
         fields = ['username', 'password', 'email']
 
     def create(self, validated_data):
-        user = Owner.objects.create_user(
+        user = User.objects.create_user(
             username=validated_data['username'],
             password=validated_data['password'],
             email=validated_data['email']
