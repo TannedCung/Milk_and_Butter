@@ -1,12 +1,10 @@
-import axios from 'axios';
+import axiosInstance from '../services/axiosInstance'; 
 
-const API = axios.create({ baseURL: 'http://localhost:1998/api' });
+export const fetchPets = () => axiosInstance.get('/api/pets/');
+export const createPet = (pet) => axiosInstance.post('/api/pets/', pet);
+export const updatePet = (id, updatedPet) => axiosInstance.patch(`/api/pets/${id}/`, updatedPet);
+export const deletePet = (id) => axiosInstance.delete(`/pets/${id}/`);
 
-export const fetchPets = () => API.get('/pets/');
-export const createPet = (pet) => API.post('/pets/', pet);
-export const updatePet = (id, updatedPet) => API.patch(`/pets/${id}/`, updatedPet);
-export const deletePet = (id) => API.delete(`/pets/${id}/`);
-
-export const registerUser = (userData) => API.post('/register/', userData);
-export const loginUser = (credentials) => API.post('/token/', credentials);
-export const refreshToken = (refresh) => API.post('/token/refresh/', { refresh });
+export const registerUser = (userData) => axiosInstance.post('/api/register/', userData);
+export const loginUser = (credentials) => axiosInstance.post('/api/token/', credentials);
+export const refreshToken = (refresh) => axiosInstance.post('/api/token/refresh/', { refresh });

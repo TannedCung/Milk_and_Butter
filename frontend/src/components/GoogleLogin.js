@@ -17,15 +17,12 @@ const GoogleLoginButton = ({ setAuth }) => {
         { token }
       );
 
-      // Destructure the tokens and user data from the response
-      const { access_token, refresh_token, user } = response.data;
-
       // Store tokens in local storage
-      localStorage.setItem('access_token', access_token);
-      localStorage.setItem('refresh_token', refresh_token);
+      localStorage.setItem('access_token', response.data.access);
+      localStorage.setItem('refresh_token', response.data.refresh);
 
       // Update authentication state with user info
-      setAuth({ user, isAuthenticated: true });
+      setAuth({ user: response.data.email, isAuthenticated: true });
     } catch (error) {
       // Handle any errors that occur during the request
       console.error('Login failed', error);

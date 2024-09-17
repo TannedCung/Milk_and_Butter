@@ -16,6 +16,7 @@ const Login = ({ setAuth }) => {
             const { data } = await loginUser({ username, password });
             localStorage.setItem('access_token', data.access);
             localStorage.setItem('refresh_token', data.refresh);
+            
             const decoded = jwtDecode(data.access);
             setAuth({ user: decoded.username, isAuthenticated: true });
         } catch (error) {
