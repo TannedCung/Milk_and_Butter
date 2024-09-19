@@ -7,6 +7,34 @@ import '../styles.css'; // Import the stylesheet
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
+const pastelColors = [
+    '#FA7F72',
+    '#3D7EA6',
+    '#FFF0D1',
+    '#795757',
+    '#664343',
+    '#3B3030',
+    '#C96868',
+    '#FADFA1',
+    '#FFF4EA',
+    '#7EACB5',
+    '#C0C78C',
+    '#A6B37D',
+    '#B99470',
+    '#E7CCCC',
+    '#254336',
+
+
+];
+
+const getPetColor = (index) => {
+    return pastelColors[index % pastelColors.length];
+};
+
+const getPetBorderColor = (index) => {
+    return pastelColors[index % pastelColors.length];
+};
+
 const Dashboard = () => {
     const [selectedPets, setSelectedPets] = useState([]);
     const [filter, setFilter] = useState('last7');
@@ -57,46 +85,40 @@ const Dashboard = () => {
         setFilter(event.target.value);
     };
 
-    // Prepare chart data for all selected pets
-    const chartData = {
-        labels: [], // Populate this with dates
-        datasets: selectedPets.flatMap(petId => {
-            const petData = healthData[petId] || {};
-            console.log('petData:', petData); // For debugging
+    // Prepare chart data for each attribute type
+    const createChartData = (attribute) => {
+        return {
+            labels: [], // Populate this with dates
+            datasets: selectedPets.flatMap((petId, index) => {
+                const petData = healthData[petId] || {};
+                console.log(`petData for ${petId}:`, petData); // For debugging
 
-            return Object.entries(petData).flatMap(([attribute, records]) => {
-                if (attribute === 'pet_name') return []; // Skip pet_name attribute
-
-                const recordsArray = Array.isArray(records) ? records : [];
+                const recordsArray = petData[attribute] || [];
                 
                 return {
-                    label: `${petData.pet_name} - ${attribute}`,
+                    label: `${petData.pet_name}`,
                     data: recordsArray.map(record => ({
                         x: new Date(record.measured_at).toLocaleDateString(),
                         y: record.value
                     })),
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: getPetBorderColor(index),
+                    backgroundColor: getPetColor(index),
                     borderWidth: 2,
-                    fill: true,
+                    fill: false, // Set to false to avoid filling area under line
                     tension: 0.1, // Makes the line smooth
                 };
-            });
-        }),
+            }),
+        };
     };
 
     // To ensure that labels are correctly populated
-    if (selectedPets.length > 0) {
-        const allDates = selectedPets.flatMap(petId => {
-            const petData = healthData[petId] || {};
-            return Object.values(petData).flatMap(records => 
-                Array.isArray(records) ? records.map(record => new Date(record.measured_at).toLocaleDateString()) : []
-            );
-        });
-        chartData.labels = [...new Set(allDates)]; // Unique dates for x-axis labels
-    }
-
-    console.log('Chart data:', chartData); // For debugging
+    const allDates = selectedPets.flatMap(petId => {
+        const petData = healthData[petId] || {};
+        return Object.values(petData).flatMap(records => 
+            Array.isArray(records) ? records.map(record => new Date(record.measured_at).toLocaleDateString()) : []
+        );
+    });
+    const uniqueDates = [...new Set(allDates)]; // Unique dates for x-axis labels
 
     return (
         <div>
@@ -128,10 +150,15 @@ const Dashboard = () => {
                 </label>
             </div>
 
-            {/* Line Chart for Health Status */}
-            {selectedPets.length > 0 && (
-                <Line data={chartData} />
-            )}
+            {/* Line Charts for Each Attribute */}
+            <div>
+                {['weight', 'length'].map(attribute => (
+                    <div key={attribute}>
+                        <h2>{attribute.charAt(0).toUpperCase() + attribute.slice(1)}</h2>
+                        <Line data={{ ...createChartData(attribute), labels: uniqueDates }} />
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
