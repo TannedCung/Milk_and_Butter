@@ -1,18 +1,19 @@
 from requests import Response
-from .permissions import IsOwner
+from ..permissions import IsOwner
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
-from .models import Pet, HealthStatus, Owner
-from .serializers import PetSerializer, HealthStatusSerializer, OwnerSerializer, RegisterSerializer
+from ..models import Pet, HealthStatus, Owner
+from ..serializers.manage import PetSerializer, HealthStatusSerializer, OwnerSerializer, RegisterSerializer
 from google.auth.transport import requests
 from google.oauth2 import id_token
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from django.core.exceptions import PermissionDenied
+from django.utils import timezone
 # from django.http.multipartparser import MultiPartParser
 
 class PetViewSet(viewsets.ModelViewSet):
@@ -47,10 +48,14 @@ class HealthStatusViewSet(viewsets.ModelViewSet):
         return HealthStatus.objects.filter(pet__owner=self.request.user)
 
     def perform_create(self, serializer):
-        # Ensure that the health attribute is only added to a pet that belongs to the logged-in user
         pet = serializer.validated_data['pet']
         if pet.owner != self.request.user:
             raise PermissionDenied("You do not have permission to add health data for this pet.")
+        
+        # Default measured_at to the current time if it's not provided
+        if 'measured_at' not in serializer.validated_data:
+            serializer.validated_data['measured_at'] = timezone.now()
+
         serializer.save()
 
 class OwnerViewSet(viewsets.ModelViewSet):

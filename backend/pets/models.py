@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from django.db import models
+from django.utils import timezone
 
 class Owner(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)  # Link to the User model
@@ -22,8 +23,10 @@ class Pet(models.Model):
 class HealthStatus(models.Model):
     pet = models.ForeignKey(Pet, related_name='health_attributes', on_delete=models.CASCADE)
     attribute_name = models.CharField(max_length=100)
-    value = models.CharField(max_length=100)
+    value = models.FloatField()
+    unit = models.CharField(max_length=20, blank=True, null=True)  # New unit field
     created_at = models.DateTimeField(auto_now_add=True)
+    measured_at = models.DateTimeField(default=timezone.now)  # New measured_at field, defaults to now
 
     def __str__(self):
         return f"{self.attribute_name} for {self.pet.name}"

@@ -2,12 +2,20 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 
 from rest_framework import serializers
-from .models import Owner, Pet, HealthStatus
+from django.utils import timezone
+from ..models import Owner, Pet, HealthStatus
 
 class HealthStatusSerializer(serializers.ModelSerializer):
+    pet_id = serializers.PrimaryKeyRelatedField(queryset=Pet.objects.all(), source='pet')
+    measured_at = serializers.DateTimeField(required=False)  # Optional input for measured_at
+    
     class Meta:
         model = HealthStatus
-        fields = ['id', 'attribute_name', 'value', 'created_at']
+        fields = ['id', 'attribute_name', 'value', 'created_at', 'pet_id', 'measured_at']
+
+    def validate_measured_at(self, value):
+        # If measured_at is not provided, default it to the current time
+        return value or timezone.now()
 
 class PetSerializer(serializers.ModelSerializer):
     health_attributes = HealthStatusSerializer(many=True, read_only=True)

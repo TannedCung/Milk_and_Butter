@@ -4,8 +4,8 @@ import Login from './components/Login';
 import Register from './components/Register';
 import PetForm from './components/PetForm';
 import PetList from './components/PetList';
-// import Logout from './components/Logout';
-import Sidebar from './components/Sidebar'; // Import the Sidebar component
+import Sidebar from './components/Sidebar';
+import Dashboard from './components/Dashboard'; // Import the actual Dashboard component
 import './styles.css';
 
 const App = () => {
@@ -43,14 +43,7 @@ const App = () => {
   );
 };
 
-// Dummy Dashboard and ManagePets components
-const Dashboard = () => (
-  <div>
-    <h2>Dashboard</h2>
-    <p>Welcome to the dashboard!</p>
-  </div>
-);
-
+// ManagePets component for pet management
 const ManagePets = () => (
   <div>
     <h2>Manage Your Pets</h2>
