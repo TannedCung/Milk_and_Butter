@@ -1,37 +1,81 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom'; // Updated import for React Router v6
 import { registerUser } from '../services/api';
 import GoogleLoginButton from './GoogleLogin';
+import { Form, Input, Button, Typography, Space, Divider } from 'antd';
+import 'antd/dist/reset.css'; // Ensure Ant Design styles are imported
+
+const { Title } = Typography;
 
 const Register = ({ setAuth }) => {
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const navigate = useNavigate(); // Use navigate for redirection
 
-    const handleRegister = async (e) => {
-        e.preventDefault();
+    const handleRegister = async (values) => {
         try {
-            await registerUser({ username, email, password });
+            await registerUser({ username: values.username, email: values.email, password: values.password });
             alert('User registered successfully!');
-            navigate('/'); // Use navigate to redirect
+            navigate('/'); // Redirect after successful registration
         } catch (error) {
             console.error("Registration failed", error);
         }
     };
 
     return (
-        <form onSubmit={handleRegister}>
-            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" />
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-            <div className="single-button-container">
-                <button className="center-button">Register</button>
-            </div>
-            <div className="single-button-container">
+        <div className="register-container" style={{ maxWidth: '400px', margin: '0 auto' }}>
+            <Title level={2} style={{ color: 'black' }}>Register</Title>
+            <Form 
+                onFinish={handleRegister} 
+                layout="vertical"
+            >
+                <Form.Item 
+                    name="username" 
+                    // label={<span style={{ color: 'black' }}>Username</span>}
+                    rules={[{ required: true, message: 'Please input your username!' }]}
+                    style={{ marginBottom: '10px' }}
+                >
+                    <Input placeholder="Username" style={{ borderColor: '#000', color: '#000', borderRadius: '10px' }} />
+                </Form.Item>
+                
+                <Form.Item 
+                    name="email" 
+                    // label={<span style={{ color: 'black' }}>Email</span>}
+                    rules={[{ required: true, message: 'Please input your email!' }, { type: 'email', message: 'The input is not valid E-mail!' }]}
+                    style={{ marginBottom: '10px' }}
+                >
+                    <Input type="email" placeholder="Email" style={{ borderColor: '#000', color: '#000', borderRadius: '10px' }} />
+                </Form.Item>
+                
+                <Form.Item 
+                    name="password" 
+                    // label={<span style={{ color: 'black' }}>Password</span>}
+                    rules={[{ required: true, message: 'Please input your password!' }]}
+                    style={{ marginBottom: '20px' }}
+                >
+                    <Input.Password placeholder="Password" style={{ borderColor: '#000', color: '#000', borderRadius: '10px' }} />
+                </Form.Item>
+                
+                <Form.Item  style={{ marginBottom: '20px' }}>
+                    <Button 
+                        type="primary" 
+                        htmlType="submit" 
+                        style={{ width: '100%', backgroundColor: '#000', borderColor: '#000', color: '#fff', borderRadius: '15px' }}
+                    >
+                        Register
+                    </Button>
+                </Form.Item>
+            </Form>
+            
+            <Space direction="vertical" style={{ width: '100%', marginTop: '16px' }}>
                 <GoogleLoginButton setAuth={setAuth} />
-            </div>
-        </form>
+                <Divider style={{ borderColor: '#000' }} />
+                <Button 
+                    type="link" style={{ color: '#000' }}
+                    onClick={() => navigate('/')} 
+                >
+                    Back to Login
+                </Button>
+            </Space>
+        </div>
     );
 };
 

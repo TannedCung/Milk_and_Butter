@@ -1,5 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom'; // Updated import for React Router v6
+import { Button } from 'antd';
+import '../styles.css'; // Import the stylesheet
 
 const Logout = ({ setAuth }) => {
     const navigate = useNavigate(); // Use navigate for redirection
@@ -17,7 +19,19 @@ const Logout = ({ setAuth }) => {
     };
 
     return (
-        <button onClick={handleLogout} className="logout-button">Logout</button>
+        <Button 
+            onClick={handleLogout} 
+            type="default" 
+            style={{ 
+                backgroundColor: '#fff', 
+                borderColor: '#000', 
+                color: '#000',
+                borderRadius: '4px',
+                margin: '16px 0'
+            }}
+        >
+            Logout
+        </Button>
     );
 };
 

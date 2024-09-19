@@ -7,6 +7,7 @@ import PetList from './components/PetList';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard'; // Import the actual Dashboard component
 import './styles.css';
+import 'antd/dist/reset.css'; // Use 'antd/dist/antd.css' for the default Ant Design styles
 
 const App = () => {
   const [auth, setAuth] = useState({ user: null, isAuthenticated: false });

@@ -3,7 +3,8 @@
 import React from 'react';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
-import './GoogleLoginButton.css'; // Create a separate CSS file for specific styles
+import { Button } from 'antd'; // Import Ant Design Button
+import 'antd/dist/reset.css'; // Import Ant Design styles
 
 const GoogleLoginButton = ({ setAuth }) => {
   // Function to handle the login success case
@@ -41,13 +42,12 @@ const GoogleLoginButton = ({ setAuth }) => {
           onSuccess={handleSuccess} // On successful login
           onError={handleError}     // On login error
           render={(renderProps) => (
-            <button 
-              className="google-login-button"
-              onClick={renderProps.onClick} 
-              disabled={renderProps.disabled}
-            >
-              Sign in with Google
-            </button>
+            <Button
+            type="primary"
+            icon={<img src="https://www.gstatic.com/images/branding/product/1x/gsa_logo_dark_24dp.png" alt="Google Logo" style={{ width: '20px', marginRight: '8px' }} />}
+          >
+            Sign in with Google
+          </Button>
           )}
         />
       </div>

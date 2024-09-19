@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Button, Menu } from 'antd';
+import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import Logout from './Logout';
 
 const Sidebar = ({ setAuth }) => {
@@ -11,21 +13,29 @@ const Sidebar = ({ setAuth }) => {
 
     return (
         <div className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
-            <button className="sidebar-toggle" onClick={toggleSidebar}>
-                {isOpen ? '◀' : '▶'} {/* Toggle icon */}
-            </button>
+            <Button
+                className="sidebar-toggle"
+                type="text"
+                icon={isOpen ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
+                onClick={toggleSidebar}
+                style={{ marginBottom: '16px' }}
+            />
             {isOpen && (
-                <ul>
-                    <li>
+                <Menu
+                    mode="inline"
+                    theme="light"
+                    style={{ width: 256 }}
+                >
+                    <Menu.Item key="1">
                         <Link to="/">Dashboard</Link>
-                    </li>
-                    <li>
+                    </Menu.Item>
+                    <Menu.Item key="2">
                         <Link to="/manage-pets">Manage Your Pets</Link>
-                    </li>
-                    <li>
+                    </Menu.Item>
+                    <Menu.Item key="3">
                         <Logout setAuth={setAuth} />
-                    </li>
-                </ul>
+                    </Menu.Item>
+                </Menu>
             )}
         </div>
     );
