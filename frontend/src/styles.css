@@ -67,24 +67,80 @@ html, body {
   }
   
   /* Sidebar styles */
-  .sidebar {
+.sidebar {
     width: 250px;
     background-color: #fafafa;
     padding: 20px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  .sidebar a {
-    display: block;
-    padding: 10px;
+    transition: width 0.3s ease, padding 0.3s ease;
+    overflow-x: hidden;
+}
+
+.sidebar.collapsed {
+    width: 90px;
+    padding: 20px 10px;
+}
+
+.sidebar a {
+    display: flex;
+    align-items: left;
+    padding: 5px;
     color: #333;
     margin-bottom: 10px;
     transition: background-color 0.3s ease;
-  }
-  
-  .sidebar a:hover {
+    white-space: nowrap;
+}
+
+.sidebar a:hover {
     background-color: #eaeaea;
-  }
+}
+
+.sidebar .icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    display: inline-flex;
+    align-items: left;
+    justify-content: left;
+}
+
+.sidebar.collapsed .icon {
+    margin-right: 10px;
+    margin-left: 0;
+}
+
+.sidebar .link-text {
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed .link-text {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+/* Main content area */
+.main-content {
+    flex: 1;
+    padding: 20px;
+    background-color: #fff;
+    transition: margin-left 0.3s ease;
+}
+
+.main-content.sidebar-collapsed {
+    margin-left: 60px;
+}
   
   /* Main content area */
   .main-content {

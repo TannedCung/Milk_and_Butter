@@ -1,42 +1,50 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Menu } from 'antd';
-import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import { MenuFoldOutlined, MenuUnfoldOutlined, DashboardOutlined, FormOutlined, LogoutOutlined } from '@ant-design/icons';
 import Logout from './Logout';
 
 const Sidebar = ({ setAuth }) => {
-    const [isOpen, setIsOpen] = useState(true); // State to manage sidebar visibility
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     const toggleSidebar = () => {
-        setIsOpen(!isOpen); // Toggle sidebar visibility
+        setIsCollapsed(!isCollapsed);
     };
 
     return (
-        <div className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
+        <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
             <Button
                 className="sidebar-toggle"
                 type="text"
-                icon={isOpen ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
+                icon={isCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                 onClick={toggleSidebar}
-                style={{ marginBottom: '16px' }}
+                style={{ marginBottom: '16px', width: '100%', textAlign: 'left' }}
             />
-            {isOpen && (
-                <Menu
-                    mode="inline"
-                    theme="light"
-                    style={{ width: 256 }}
-                >
-                    <Menu.Item key="1">
-                        <Link to="/">Dashboard</Link>
-                    </Menu.Item>
-                    <Menu.Item key="2">
-                        <Link to="/manage-pets">Manage Your Pets</Link>
-                    </Menu.Item>
-                    <Menu.Item key="3">
-                        <Logout setAuth={setAuth} />
-                    </Menu.Item>
-                </Menu>
-            )}
+            <Menu
+                mode="inline"
+                theme="light"
+                inlineCollapsed={isCollapsed}
+                style={{ border: 'none', textAlign: 'left' }}
+            >
+                <Menu.Item key="1" icon={<DashboardOutlined />}>
+                    <Link to="/">
+                        <span className="icon"></span>
+                        <span className="link-text">Dashboard</span>
+                    </Link>
+                </Menu.Item>
+                <Menu.Item key="2" icon={<FormOutlined />}>
+                    <Link to="/manage-pets">
+                        <span className="icon"></span>
+                        <span className="link-text">Manage Your Pets</span>
+                    </Link>
+                </Menu.Item>
+                <Menu.Item key="3" icon={<LogoutOutlined />}>
+                    <Logout setAuth={setAuth}>
+                        <span className="icon"></span>
+                        <span className="link-text">Logout</span>
+                    </Logout>
+                </Menu.Item>
+            </Menu>
         </div>
     );
 };

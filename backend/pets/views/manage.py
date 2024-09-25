@@ -12,6 +12,11 @@ from google.oauth2 import id_token
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
+from django.http import FileResponse
+import os
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 # from django.http.multipartparser import MultiPartParser
@@ -37,6 +42,18 @@ class PetViewSet(viewsets.ModelViewSet):
         if pet.owner != self.request.user:
             raise PermissionDenied("You do not have permission to view this pet.")
         return pet
+    
+    @action(detail=True, methods=['get'], url_path='avatar')
+    def get_avatar(self, request, pk=None):
+        pet = self.get_object()
+        if not pet.avatar:  # Assuming `avatar` is the field that stores the pet's avatar
+            return Response({"error": "Avatar not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        avatar_path = pet.avatar.path  # Get the file path for the avatar image
+        if os.path.exists(avatar_path):
+            return FileResponse(open(avatar_path, 'rb'), content_type='image/jpeg')  # Adjust content type if necessary
+        else:
+            return Response({"error": "Avatar file does not exist."}, status=status.HTTP_404_NOT_FOUND)
 
 class HealthStatusViewSet(viewsets.ModelViewSet):
     queryset = HealthStatus.objects.all()
