@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+// HealthStatus.js
+import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
-import axiosInstance from '../services/axiosInstance';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import axiosInstance from '../../services/axiosInstance';
 import { Checkbox, Select, Card, Typography, Space } from 'antd';
-import '../styles.css';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import '../../styles.css';
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -32,9 +33,7 @@ const petColors = [
 
 const getPetColor = (index) => petColors[index % petColors.length];
 
-const Dashboard = () => {
-    const [selectedPets, setSelectedPets] = useState([]);
-    const [filter, setFilter] = useState('last7');
+const HealthStatus = ({ selectedPets, filter, setSelectedPets, setFilter }) => {
     const [pets, setPets] = useState([]);
     const [healthData, setHealthData] = useState({});
 
@@ -62,7 +61,6 @@ const Dashboard = () => {
             const response = await axiosInstance.get(`/api/dashboard/overview/`, {
                 params: { pets: pets.join(','), filter }
             });
-            console.log('Health data response:', response.data); // For debugging
             setHealthData(response.data);
         } catch (error) {
             console.error('Failed to fetch health data:', error);
@@ -82,8 +80,6 @@ const Dashboard = () => {
             labels: [], // Populate this with dates
             datasets: selectedPets.map((petId, index) => {
                 const petData = healthData[petId] || {};
-                console.log(`petData for ${petId}:`, petData); // For debugging
-
                 const recordsArray = petData[attribute] || [];
                 
                 return {
@@ -95,8 +91,8 @@ const Dashboard = () => {
                     borderColor: getPetColor(index),
                     backgroundColor: getPetColor(index),
                     borderWidth: 2,
-                    fill: false, // No fill
-                    tension: 0.1, // Makes the line smooth
+                    fill: false,
+                    tension: 0.1,
                 };
             }),
         };
@@ -108,10 +104,11 @@ const Dashboard = () => {
             Array.isArray(records) ? records.map(record => new Date(record.measured_at).toLocaleDateString()) : []
         );
     });
+
     const uniqueDates = [...new Set(allDates)]; // Unique dates for x-axis labels
 
     return (
-        <div className="main-content">
+        <div className="main-content" style={{ padding: '20px', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                 <AntTitle level={1}>Pet Health Dashboard</AntTitle>
 
@@ -151,27 +148,18 @@ const Dashboard = () => {
                                 options={{
                                     responsive: true,
                                     plugins: {
-                                        legend: {
-                                            position: 'top',
-                                        },
+                                        legend: { position: 'top' },
                                         tooltip: {
                                             callbacks: {
-                                                label: function(tooltipItem) {
+                                                label: function (tooltipItem) {
                                                     return `${tooltipItem.dataset.label}: ${tooltipItem.raw.y}`;
                                                 }
                                             }
                                         }
                                     },
                                     scales: {
-                                        x: {
-                                            ticks: {
-                                                maxRotation: 90,
-                                                minRotation: 45,
-                                            },
-                                        },
-                                        y: {
-                                            beginAtZero: true,
-                                        },
+                                        x: { ticks: { maxRotation: 90, minRotation: 45 } },
+                                        y: { beginAtZero: true },
                                     },
                                 }}
                             />
@@ -183,4 +171,4 @@ const Dashboard = () => {
     );
 };
 
-export default Dashboard;
+export default HealthStatus;

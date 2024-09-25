@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
-import PetForm from './components/PetForm';
-import PetList from './components/PetList';
+import PetForm from './components/MangePets/PetForm';
+import PetList from './components/MangePets/PetList';
 import Sidebar from './components/Sidebar';
-import Dashboard from './components/Dashboard'; // Import the actual Dashboard component
+import Dashboard from './components/Dashboard/Dashboard'; // Import the actual Dashboard component
 import './styles.css';
 import 'antd/dist/reset.css'; // Use 'antd/dist/antd.css' for the default Ant Design styles
 
@@ -13,13 +13,13 @@ const App = () => {
   const [auth, setAuth] = useState({ user: null, isAuthenticated: false });
 
   return (
-    <div className="container">
+    <div className="container full-width-container">
       <header>
         <h1>Milk and Butter</h1>
       </header>
-      <main>
+      <main className="full-width-main">
         {auth.isAuthenticated ? (
-          <div className="app-content">
+          <div className="app-content full-width-content">
             <Sidebar setAuth={setAuth} />
             <div className="main-content">
               <Routes>
@@ -46,10 +46,12 @@ const App = () => {
 
 // ManagePets component for pet management
 const ManagePets = () => (
-  <div>
+  <div className="manage-pets-container">
     <h2>Manage Your Pets</h2>
-    <PetForm />
-    <PetList />
+    <div className="manage-pets-content">
+      <PetForm />
+      <PetList />
+    </div>
   </div>
 );
 

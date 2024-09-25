@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchPets } from '../services/api';
+import { fetchPets } from '../../services/api';
 import { List, Typography, Avatar } from 'antd';
 
 const { Title } = Typography;

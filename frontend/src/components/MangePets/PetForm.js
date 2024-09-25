@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Typography } from 'antd';
-import { createPet } from '../services/api';
+import { createPet } from '../../services/api';
 
 const { Title } = Typography;
 
@@ -18,7 +18,7 @@ const PetForm = () => {
     };
 
     return (
-        <div className="form-container" style={{ backgroundColor: '#fff', color: '#000', padding: '20px', borderRadius: '8px' }}>
+        <div className="form-container" style={{ padding: '20px', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
             <Title level={3} style={{ color: '#000' }}>You have a new pet?</Title>
             <Form
                 form={form}
