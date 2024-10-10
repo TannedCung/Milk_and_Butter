@@ -272,3 +272,12 @@ margin: 0 20px; /* Adjust space around the divider */
 .PetList {
 min-width: 300px; /* Minimum width for each component */
 }
+
+.ant-input {
+  border-color: #000 !important; /* Override default border color */
+  border-radius: 15px !important; /* Set border radius */
+}
+
+.ant-input:focus {
+  border-color: #000 !important; /* Focused state border color */
+}

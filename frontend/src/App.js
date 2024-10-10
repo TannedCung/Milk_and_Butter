@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
-import PetForm from './components/MangePets/PetForm';
 import PetList from './components/MangePets/PetList';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard/Dashboard'; // Import the actual Dashboard component
@@ -45,14 +44,16 @@ const App = () => {
 };
 
 // ManagePets component for pet management
-const ManagePets = () => (
-  <div className="manage-pets-container">
-    <h2>Manage Your Pets</h2>
-    <div className="manage-pets-content">
-      <PetForm />
-      <PetList />
-    </div>
-  </div>
-);
+const ManagePets = () => {
+  return (
+      <div className="manage-pets-container">
+          <h2>Manage Your Pets</h2>
+          <div className="manage-pets-content">
+              <PetList />
+    
+          </div>
+      </div>
+  );
+};
 
 export default App;
