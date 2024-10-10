@@ -48,7 +48,7 @@ const PetForm = () => {
     };
 
     return (
-        <div className="form-container" style={{ padding: '20px', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
+        <div className="form-container" style={{ padding: '20px', backgroundColor: '#fff', borderRadius: '12px' }}>
             <Title level={3} style={{ color: '#000' }}>You have a new pet?</Title>
             <Form
                 form={form}
