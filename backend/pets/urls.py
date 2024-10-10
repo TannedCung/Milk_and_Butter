@@ -1,13 +1,14 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from .views.overview import DashboardOverviewView
-from .views.manage import GoogleLogin, PetViewSet, HealthStatusViewSet, OwnerViewSet, RegisterView
+from .views.manage import GoogleLogin, PetViewSet, HealthStatusViewSet, OwnerViewSet, RegisterView, VaccinationViewSet
 from .views.manage import logout_view
 
 router = DefaultRouter()
 router.register(r'pets', PetViewSet)
 router.register(r'health-status', HealthStatusViewSet)
 router.register(r'owners', OwnerViewSet)
+router.register(r'vaccination', VaccinationViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

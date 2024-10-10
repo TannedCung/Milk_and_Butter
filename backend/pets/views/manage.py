@@ -5,8 +5,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
-from ..models import Pet, HealthStatus, Owner
-from ..serializers.manage import PetSerializer, HealthStatusSerializer, OwnerSerializer, RegisterSerializer
+from ..models import Pet, HealthStatus, Owner, Vaccination
+from ..serializers.manage import PetSerializer, HealthStatusSerializer, OwnerSerializer, RegisterSerializer, VaccinationSerializer
 from google.auth.transport import requests
 from google.oauth2 import id_token
 from django.contrib.auth.models import User
@@ -20,6 +20,27 @@ import os
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 # from django.http.multipartparser import MultiPartParser
+
+class VaccinationViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to view, create, update or delete vaccinations.
+    """
+    permission_classes = [IsAuthenticated]
+    queryset = Vaccination.objects.all()
+    serializer_class = VaccinationSerializer
+
+    def get_queryset(self):
+        return Vaccination.objects.filter(pet=self.kwargs['pet_pk'])
+
+    def get_object(self, pk):
+        try:
+            return Vaccination.objects.get(pk=pk)
+        except Vaccination.DoesNotExist:
+            return None
+
+    def get_serializer_context(self):
+        return {'pet_pk': self.kwargs['pet_pk']}
+
 
 class PetViewSet(viewsets.ModelViewSet):
     queryset = Pet.objects.all()

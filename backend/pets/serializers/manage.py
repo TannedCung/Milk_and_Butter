@@ -1,3 +1,7 @@
+# backend/pets/serializers.py
+
+from rest_framework import serializers
+from ..models import Vaccination
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
@@ -22,7 +26,7 @@ class PetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Pet
-        fields = ['id', 'name', 'species', 'avatar', 'health_attributes']
+        fields = ['id', 'name', 'species', 'avatar', 'health_attributes', 'microchip_number', 'medical_conditions', 'color', 'gender', 'date_of_birth']
 
 class OwnerSerializer(serializers.ModelSerializer):
     pets = PetSerializer(many=True, read_only=True)
@@ -46,4 +50,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         return user
 
-
+class VaccinationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vaccination
+        fields = ['id', 'pet', 'vaccinated_at', 'vaccination_name', 'vaccination_status', 'vaccination_notes', 'tag_proof']

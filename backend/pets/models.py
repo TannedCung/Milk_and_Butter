@@ -16,9 +16,23 @@ class Pet(models.Model):
     species = models.CharField(max_length=100)  # Allow flexible species names
     avatar = models.ImageField(upload_to='pet_avatars/', null=True, blank=True)
     owner = models.ForeignKey(User, related_name='pets', on_delete=models.CASCADE)
+    date_of_birth = models.DateField(null=True, blank=True)
+    gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Unknown', 'Unknown')])
+    color = models.CharField(max_length=100, null=True, blank=True)
+    medical_conditions = models.TextField(null=True, blank=True)
+    microchip_number = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} ({self.species})"
+
+class Vaccination(models.Model):
+    pet = models.ForeignKey(Pet, on_delete=models.CASCADE)
+    vaccinated_at = models.DateField()
+    vaccination_name = models.CharField(max_length=100)
+    vaccination_status = models.CharField(max_length=10, choices=[('Completed', 'Completed'), ('Pending', 'Pending'), ('Unknown', 'Unknown')])
+    vaccination_notes = models.TextField(null=True, blank=True)
+    tag_proof = models.ImageField(upload_to='tag_proof/', null=True, blank=True)
+
 
 class HealthStatus(models.Model):
     pet = models.ForeignKey(Pet, related_name='health_attributes', on_delete=models.CASCADE)
