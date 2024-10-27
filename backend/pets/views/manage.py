@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from ..models import Pet, HealthStatus, Owner, Vaccination
 from ..serializers.manage import PetSerializer, HealthStatusSerializer, OwnerSerializer, RegisterSerializer, VaccinationSerializer
 from google.auth.transport import requests
@@ -12,14 +12,12 @@ from google.oauth2 import id_token
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework import status
 from django.http import FileResponse
 import os
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
-# from django.http.multipartparser import MultiPartParser
+from ..pagination.manage import VaccinationPagination  # Import the custom pagination
+
 
 class VaccinationViewSet(viewsets.ModelViewSet):
     """
@@ -28,25 +26,24 @@ class VaccinationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Vaccination.objects.all()
     serializer_class = VaccinationSerializer
+    pagination_class = VaccinationPagination
 
     def get_queryset(self):
-        return Vaccination.objects.filter(pet=self.kwargs['pet_pk'])
+        return Vaccination.objects.filter(pet__owner=self.request.user)
 
-    def get_object(self, pk):
+    def get_object(self):
         try:
-            return Vaccination.objects.get(pk=pk)
+            return Vaccination.objects.get(pk=self.kwargs['pk'])
         except Vaccination.DoesNotExist:
             return None
 
-    def get_serializer_context(self):
-        return {'pet_pk': self.kwargs['pet_pk']}
-
+    # def get_serializer_context(self):
+    #     return {'pet_pk': self.kwargs['pet']}
 
 class PetViewSet(viewsets.ModelViewSet):
     queryset = Pet.objects.all()
     serializer_class = PetSerializer
     permission_classes = [IsAuthenticated, IsOwner]
-    # parser_classes = (MultiPartParser,)
 
     def get_queryset(self):
         # Only return the pets that belong to the logged-in user (owner)
@@ -54,9 +51,7 @@ class PetViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         # Automatically assign the logged-in user as the owner of the pet
-        print(self.request.user )
-        owner = User.objects.get(username=self.request.user)
-        serializer.save(owner=owner)
+        serializer.save(owner=self.request.user)
 
     def get_object(self):
         pet = super().get_object()
@@ -67,12 +62,12 @@ class PetViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'], url_path='avatar')
     def get_avatar(self, request, pk=None):
         pet = self.get_object()
-        if not pet.avatar:  # Assuming `avatar` is the field that stores the pet's avatar
+        if not pet.avatar:
             return Response({"error": "Avatar not found."}, status=status.HTTP_404_NOT_FOUND)
         
-        avatar_path = pet.avatar.path  # Get the file path for the avatar image
+        avatar_path = pet.avatar.path
         if os.path.exists(avatar_path):
-            return FileResponse(open(avatar_path, 'rb'), content_type='image/jpeg')  # Adjust content type if necessary
+            return FileResponse(open(avatar_path, 'rb'), content_type='image/jpeg')
         else:
             return Response({"error": "Avatar file does not exist."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -82,14 +77,13 @@ class HealthStatusViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Filter health attributes to only those that belong to the logged-in user's pets
         return HealthStatus.objects.filter(pet__owner=self.request.user)
 
     def perform_create(self, serializer):
         pet = serializer.validated_data['pet']
         if pet.owner != self.request.user:
             raise PermissionDenied("You do not have permission to add health data for this pet.")
-        
+
         # Default measured_at to the current time if it's not provided
         if 'measured_at' not in serializer.validated_data:
             serializer.validated_data['measured_at'] = timezone.now()
@@ -102,8 +96,7 @@ class OwnerViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Only allow the logged-in user to access their own profile
-        return Owner.objects.filter(id=self.request.user.id)
+        return Owner.objects.filter(user=self.request.user)
 
 class RegisterView(APIView):
     def post(self, request):
@@ -123,11 +116,8 @@ class GoogleLogin(APIView):
             if 'email' not in idinfo:
                 return Response({'error': 'Email not provided'}, status=400)
             
-            # Get or create a user based on the email
             email = idinfo['email']
             user, created = User.objects.get_or_create(username=email, defaults={'email': email})
-            
-            # Generate JWT token for the authenticated user
             refresh = RefreshToken.for_user(user)
             return Response({
                 'refresh': str(refresh),
@@ -141,4 +131,3 @@ class GoogleLogin(APIView):
 def logout_view(request):
     # Here you might want to invalidate the refresh token or any other session data
     return Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
-

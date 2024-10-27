@@ -1,0 +1,59 @@
+/* Calendar component styles */
+.calendar-container {
+    margin-top: 20px; /* Space above the calendar */
+    padding: 10px; /* Padding around the calendar */
+    background-color: #fff; /* White background for the calendar */
+    border-radius: 12px; /* Rounded corners */
+}
+
+/* Style for the calendar tiles (days) */
+.react-calendar__tile {
+    padding: 10px; /* Padding inside each tile */
+    background: white; /* Default background for days */
+    color: black; /* Default text color for days */
+    border-radius: 15px; /* Add a border-radius to the tile */
+    transition: background-color 0.2s ease; /* Smooth background transition */
+}
+
+/* Style for the current day */
+.react-calendar__tile--now {
+    background: black; /* Green background for the current day */
+    color: white; /* White text for current day */
+}
+
+/* Style for tiles (days) when hovered */
+.react-calendar__tile:hover {
+    background: #eaeaea; /* Light gray background on hover */
+}
+
+/* Remove border between days */
+.react-calendar__tile {
+    border: none; /* No borders */
+}
+
+/* Style for the header of the calendar */
+.react-calendar__navigation {
+    background: #fff; /* White background for the header */
+    border-radius: 15px; /* Rounded corners for the header */
+    padding: 2px 2px; /* Reduce padding to make the button smaller */
+    border: 1px solid #ddd; /* Add a border to make the button more visible */
+    font-size: 14px; /* Reduce font size to make the button smaller */
+    display: flex; /* Center the buttons */
+    justify-content: space-between; /* Distribute the buttons evenly */
+}
+
+.react-calendar__navigation button {
+    background-color: #fff; /* White background for the buttons */
+    color: #333; /* Black text color for the buttons */
+    border: none; /* Remove the default border */
+    padding: 4px 8px; /* Adjust the padding to your liking */
+    border-radius: 4px; /* Rounded corners for the buttons */
+    cursor: pointer; /* Add a pointer cursor to indicate that the button is clickable */
+}
+
+/* Divider between calendar days and other information */
+.calendar-divider {
+    height: 1px; /* Height of the divider */
+    background-color: #e0e0e0; /* Light gray color for the divider */
+    margin: 20px 0; /* Space around the divider */
+}

@@ -15,7 +15,7 @@ class HealthStatusSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = HealthStatus
-        fields = ['id', 'attribute_name', 'value', 'created_at', 'pet_id', 'measured_at']
+        fields = ['id', 'attribute_name', 'value', 'created_at', 'pet_id', 'measured_at', 'coat_condition', 'mood']
 
     def validate_measured_at(self, value):
         # If measured_at is not provided, default it to the current time
@@ -53,4 +53,4 @@ class RegisterSerializer(serializers.ModelSerializer):
 class VaccinationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vaccination
-        fields = ['id', 'pet', 'vaccinated_at', 'vaccination_name', 'vaccination_status', 'vaccination_notes', 'tag_proof']
+        fields = ['id', 'pet', 'vaccinated_at', 'schedule_at', 'vaccination_name', 'vaccination_status', 'vaccination_notes', 'tag_proof']

@@ -20,7 +20,6 @@ const PetForm = () => {
     };
 
     const handleSubmit = async (values) => {
-        // Prepare pet data for submission
         const petData = { 
             name: values.name, 
             species: values.species,
@@ -31,20 +30,18 @@ const PetForm = () => {
             microchip_number: values.microchip_number,
         };
 
-        // Add avatar file to petData if it exists
         if (avatarFile) {
             const formData = new FormData();
-            formData.append('petData', JSON.stringify(petData)); // Assuming your API expects JSON
+            formData.append('petData', JSON.stringify(petData));
             formData.append('avatar', avatarFile);
 
-            await createPet(formData); // Make sure your createPet function can handle FormData
+            await createPet(formData);
         } else {
-            await createPet(petData); // Fallback if no avatar is uploaded
+            await createPet(petData);
         }
 
-        // Reset form after submission
         form.resetFields();
-        setAvatarFile(null); // Clear avatar state
+        setAvatarFile(null);
     };
 
     return (
@@ -67,22 +64,32 @@ const PetForm = () => {
                 <Form.Item
                     label="Species"
                     name="species"
-                    rules={[{ required: true, message: 'Please enter the species!' }]}
+                    rules={[{ required: true, message: 'Please select the species!' }]}
                 >
-                    <Input style={{ borderColor: '#000', borderRadius: '15px' }} />
+                    <Select placeholder="Select species" style={{ borderColor: '#000', borderRadius: '15px' }}>
+                        <Option value="Dog">Dog</Option>
+                        <Option value="Cat">Cat</Option>
+                        <Option value="Fish">Fish</Option>
+                        <Option value="Bird">Bird</Option>
+                        <Option value="Rabbit">Rabbit</Option>
+                        <Option value="Hamster">Hamster</Option>
+                        <Option value="Guinea Pig">Guinea Pig</Option>
+                        <Option value="Turtle">Turtle</Option>
+                        <Option value="Lizard">Lizard</Option>
+                        <Option value="Snake">Snake</Option>
+                        <Option value="Ferret">Ferret</Option>
+                        <Option value="Hedgehog">Hedgehog</Option>
+                        <Option value="Chicken">Chicken</Option>
+                        <Option value="Rat">Rat</Option>
+                        <Option value="Hermit Crab">Hermit Crab</Option>
+                    </Select>
                 </Form.Item>
 
-                <Form.Item
-                    label="Date of Birth"
-                    name="date_of_birth"
-                >
+                <Form.Item label="Date of Birth" name="date_of_birth">
                     <DatePicker style={{ borderColor: '#000', borderRadius: '15px' }} />
                 </Form.Item>
 
-                <Form.Item
-                    label="Gender"
-                    name="gender"
-                >
+                <Form.Item label="Gender" name="gender">
                     <Select placeholder="Select gender" style={{ borderColor: '#000', borderRadius: '15px' }}>
                         <Option value="Male">Male</Option>
                         <Option value="Female">Female</Option>
@@ -90,35 +97,23 @@ const PetForm = () => {
                     </Select>
                 </Form.Item>
 
-                <Form.Item
-                    label="Color"
-                    name="color"
-                >
+                <Form.Item label="Color" name="color">
                     <Input style={{ borderColor: '#000', borderRadius: '15px' }} />
                 </Form.Item>
 
-                <Form.Item
-                    label="Medical Conditions"
-                    name="medical_conditions"
-                >
+                <Form.Item label="Medical Conditions" name="medical_conditions">
                     <Input.TextArea rows={4} style={{ borderColor: '#000', borderRadius: '15px' }} />
                 </Form.Item>
 
-                <Form.Item
-                    label="Microchip Number"
-                    name="microchip_number"
-                >
+                <Form.Item label="Microchip Number" name="microchip_number">
                     <Input style={{ borderColor: '#000', borderRadius: '15px' }} />
                 </Form.Item>
 
-                <Form.Item
-                    label="Pet Avatar"
-                    name="avatar"
-                >
+                <Form.Item label="Pet Avatar" name="avatar">
                     <Upload
                         name="avatar"
                         onChange={handleAvatarChange}
-                        beforeUpload={() => false} // Prevent automatic upload
+                        beforeUpload={() => false}
                         accept="image/*"
                     >
                         <Button icon={<UploadOutlined />} style={{ borderColor: '#000', borderRadius: '15px' }}>
