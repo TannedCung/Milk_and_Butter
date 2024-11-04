@@ -1,14 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Form, Input, Button, DatePicker, Select, Typography, Upload, message } from 'antd';
-import { createPet } from '../../services/api';
 import { UploadOutlined } from '@ant-design/icons';
+import moment from 'moment';
 
 const { Title } = Typography;
 const { Option } = Select;
 
-const PetForm = () => {
+const PetForm = ({ initialValues, onSubmit }) => {
     const [form] = Form.useForm();
     const [avatarFile, setAvatarFile] = React.useState(null);
+
+    // Populate form with initial values for editing
+    useEffect(() => {
+        if (initialValues) {
+            form.setFieldsValue({
+                ...initialValues,
+                date_of_birth: initialValues.date_of_birth ? moment(initialValues.date_of_birth) : null,
+            });
+        }
+    }, [initialValues, form]);
 
     const handleAvatarChange = (info) => {
         if (info.file.status === 'done') {
@@ -20,33 +30,31 @@ const PetForm = () => {
     };
 
     const handleSubmit = async (values) => {
-        const petData = { 
-            name: values.name, 
+        const petData = {
+            name: values.name,
             species: values.species,
-            date_of_birth: values.date_of_birth?.format('YYYY-MM-DD'), 
+            date_of_birth: values.date_of_birth ? values.date_of_birth.format('YYYY-MM-DD') : null,
             gender: values.gender,
             color: values.color,
             medical_conditions: values.medical_conditions,
             microchip_number: values.microchip_number,
         };
 
+        const formData = new FormData();
         if (avatarFile) {
-            const formData = new FormData();
-            formData.append('petData', JSON.stringify(petData));
             formData.append('avatar', avatarFile);
-
-            await createPet(formData);
-        } else {
-            await createPet(petData);
         }
+        formData.append('petData', JSON.stringify(petData));
 
-        form.resetFields();
-        setAvatarFile(null);
+        await onSubmit(formData); // Submit the form data
+
+        form.resetFields(); // Reset the form fields after submission
+        setAvatarFile(null); // Clear the avatar file
     };
 
     return (
         <div className="form-container" style={{ padding: '20px', backgroundColor: '#fff', borderRadius: '12px' }}>
-            <Title level={3} style={{ color: '#000' }}>You have a new pet?</Title>
+            <Title level={3} style={{ color: '#000' }}>{initialValues ? 'Edit Pet' : 'Add New Pet'}</Title>
             <Form
                 form={form}
                 layout="vertical"
@@ -70,18 +78,7 @@ const PetForm = () => {
                         <Option value="Dog">Dog</Option>
                         <Option value="Cat">Cat</Option>
                         <Option value="Fish">Fish</Option>
-                        <Option value="Bird">Bird</Option>
-                        <Option value="Rabbit">Rabbit</Option>
-                        <Option value="Hamster">Hamster</Option>
-                        <Option value="Guinea Pig">Guinea Pig</Option>
-                        <Option value="Turtle">Turtle</Option>
-                        <Option value="Lizard">Lizard</Option>
-                        <Option value="Snake">Snake</Option>
-                        <Option value="Ferret">Ferret</Option>
-                        <Option value="Hedgehog">Hedgehog</Option>
-                        <Option value="Chicken">Chicken</Option>
-                        <Option value="Rat">Rat</Option>
-                        <Option value="Hermit Crab">Hermit Crab</Option>
+                        {/* Add more species options as needed */}
                     </Select>
                 </Form.Item>
 
@@ -128,7 +125,7 @@ const PetForm = () => {
                         htmlType="submit" 
                         style={{ backgroundColor: '#000', borderColor: '#000', color: '#fff' }}
                     >
-                        Add Pet
+                        {initialValues ? 'Update Pet' : 'Add Pet'}
                     </Button>
                 </Form.Item>
             </Form>
