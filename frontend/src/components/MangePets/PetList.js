@@ -30,11 +30,6 @@ const PetList = () => {
         try {
             const { data } = await fetchPets(page, pageSize);
             setPets(data.results);
-            setPagination((prev) => ({
-                ...prev,
-                current: page,
-                total: data.count,
-            }));
             
             const avatarMap = {};
             for (const pet of data.results) {
@@ -56,7 +51,7 @@ const PetList = () => {
         }
     }, []);
 
-    useEffect(() => {
+    useEffect(() => {   
         fetchPetsData(pagination.current, pagination.pageSize);
     }, [fetchPetsData, pagination]);
 
