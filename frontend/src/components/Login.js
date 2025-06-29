@@ -23,34 +23,34 @@ const Login = ({ setAuth }) => {
     };
 
     return (
-        <div className="login-container" style={{ padding: '24px', maxWidth: '400px', margin: 'auto', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 0 10px rgba(0,0,0,0.1)' }}>
-            <Title level={2} style={{ textAlign: 'center', color: '#000' }}>Login</Title>
-            <Form onFinish={handleLogin} layout="vertical">
+        <div className="login-container">
+            <Title level={2} className="login-title">Login</Title>
+            <Form onFinish={handleLogin} layout="vertical" className="login-form">
                 <Form.Item 
                     name="username"
                     rules={[{ required: true, message: 'Please input your username!' }]}
-                    style={{ marginBottom: '10px' }}
+                    className="form-group"
                 >
                     <Input 
                         placeholder="Username" 
-                        style={{ borderColor: '#000', color: '#000' }}
+                        className="login-input"
                     />
                 </Form.Item>
                 <Form.Item 
                     name="password"
                     rules={[{ required: true, message: 'Please input your password!' }]}
-                    style={{ marginBottom: '20px' }}
+                    className="form-group"
                 >
                     <Input.Password 
                         placeholder="Password" 
-                        style={{ borderColor: '#000', color: '#000' }}
+                        className="login-input"
                     />
                 </Form.Item>
-                <Form.Item style={{ marginBottom: '20px' }}>
+                <Form.Item className="form-group">
                     <Button 
                         type="primary" 
                         htmlType="submit" 
-                        style={{ width: '100%', backgroundColor: '#000', borderColor: '#000', color: '#fff' }}
+                        className="btn-primary login-button"
                     >
                         Login
                     </Button>
@@ -58,10 +58,10 @@ const Login = ({ setAuth }) => {
                 <Form.Item>
                     <GoogleLoginButton setAuth={setAuth} />
                 </Form.Item>
-                <Divider style={{ borderColor: '#000' }} />
+                <Divider className="login-divider" />
                 <Form.Item>
                     <Link to="/register">
-                        <Button type="link" style={{ color: '#000' }}>
+                        <Button type="link" className="login-link">
                             Don't have an account? Sign up for free
                         </Button>
                     </Link>

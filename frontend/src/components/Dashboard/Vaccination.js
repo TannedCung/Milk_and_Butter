@@ -31,15 +31,16 @@ const Vaccination = ({ selectedPets }) => {
     }, []);
 
     useEffect(() => {
-        fetchVaccinations(pagination.current, pagination.pageSize);
-    }, [fetchVaccinations, pagination.current, pagination.pageSize, selectedPets]); // include pagination values
+        fetchVaccinations(1, 5); // Reset to first page when selectedPets changes
+    }, [fetchVaccinations, selectedPets]);
 
-    const handleTableChange = (pagination) => {
+    const handleTableChange = (paginationInfo) => {
         setPagination(prev => ({
             ...prev,
-            current: pagination.current,
-            pageSize: pagination.pageSize,
+            current: paginationInfo.current,
+            pageSize: paginationInfo.pageSize,
         }));
+        fetchVaccinations(paginationInfo.current, paginationInfo.pageSize);
     };
 
     const columns = [

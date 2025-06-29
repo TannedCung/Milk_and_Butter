@@ -1,80 +1,77 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Updated import for React Router v6
+import { Form, Input, Button, Typography, Divider, message } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '../services/api';
-import GoogleLoginButton from './GoogleLogin';
-import { Form, Input, Button, Typography, Space, Divider } from 'antd';
-import 'antd/dist/reset.css'; // Ensure Ant Design styles are imported
+import '../styles.css';
 
 const { Title } = Typography;
 
-const Register = ({ setAuth }) => {
-    const navigate = useNavigate(); // Use navigate for redirection
+const Register = () => {
+    const navigate = useNavigate();
 
     const handleRegister = async (values) => {
         try {
-            await registerUser({ username: values.username, email: values.email, password: values.password });
-            alert('User registered successfully!');
-            navigate('/'); // Redirect after successful registration
+            await registerUser({
+                username: values.username,
+                email: values.email,
+                password: values.password,
+            });
+            message.success('Registration successful! Please login.');
+            navigate('/');
         } catch (error) {
-            console.error("Registration failed", error);
+            message.error('Registration failed. Please try again.');
         }
     };
 
     return (
-        <div className="register-container" style={{ maxWidth: '400px', margin: '0 auto' }}>
-            <Title level={2} style={{ color: 'black' }}>Register</Title>
-            <Form 
-                onFinish={handleRegister} 
-                layout="vertical"
-            >
-                <Form.Item 
-                    name="username" 
-                    // label={<span style={{ color: 'black' }}>Username</span>}
+        <div className="register-container">
+            <Title level={2} className="register-title">Create Account</Title>
+            <Form onFinish={handleRegister} layout="vertical" className="register-form">
+                <Form.Item
+                    name="username"
                     rules={[{ required: true, message: 'Please input your username!' }]}
-                    style={{ marginBottom: '10px' }}
+                    className="form-group"
                 >
-                    <Input placeholder="Username" style={{ borderColor: '#000', color: '#000', borderRadius: '10px' }} />
+                    <Input placeholder="Username" className="register-input" />
                 </Form.Item>
-                
-                <Form.Item 
-                    name="email" 
-                    // label={<span style={{ color: 'black' }}>Email</span>}
-                    rules={[{ required: true, message: 'Please input your email!' }, { type: 'email', message: 'The input is not valid E-mail!' }]}
-                    style={{ marginBottom: '10px' }}
+                <Form.Item
+                    name="email"
+                    rules={[
+                        { required: true, message: 'Please input your email!' },
+                        { type: 'email', message: 'Please enter a valid email!' }
+                    ]}
+                    className="form-group"
                 >
-                    <Input type="email" placeholder="Email" style={{ borderColor: '#000', color: '#000', borderRadius: '10px' }} />
+                    <Input type="email" placeholder="Email" className="register-input" />
                 </Form.Item>
-                
-                <Form.Item 
-                    name="password" 
-                    // label={<span style={{ color: 'black' }}>Password</span>}
-                    rules={[{ required: true, message: 'Please input your password!' }]}
-                    style={{ marginBottom: '20px' }}
+                <Form.Item
+                    name="password"
+                    rules={[
+                        { required: true, message: 'Please input your password!' },
+                        { min: 6, message: 'Password must be at least 6 characters!' }
+                    ]}
+                    className="form-group"
                 >
-                    <Input.Password placeholder="Password" style={{ borderColor: '#000', color: '#000', borderRadius: '10px' }} />
+                    <Input.Password placeholder="Password" className="register-input" />
                 </Form.Item>
-                
-                <Form.Item  style={{ marginBottom: '20px' }}>
+                <Form.Item className="form-group">
                     <Button 
                         type="primary" 
                         htmlType="submit" 
-                        style={{ width: '100%', backgroundColor: '#000', borderColor: '#000', color: '#fff', borderRadius: '15px' }}
+                        className="btn-primary register-button"
                     >
-                        Register
+                        Create Account
                     </Button>
                 </Form.Item>
+                <Divider className="register-divider" />
+                <Form.Item>
+                    <Link to="/">
+                        <Button type="link" className="register-link">
+                            Already have an account? Sign in
+                        </Button>
+                    </Link>
+                </Form.Item>
             </Form>
-            
-            <Space direction="vertical" style={{ width: '100%', marginTop: '16px' }}>
-                <GoogleLoginButton setAuth={setAuth} />
-                <Divider style={{ borderColor: '#000' }} />
-                <Button 
-                    type="link" style={{ color: '#000' }}
-                    onClick={() => navigate('/')} 
-                >
-                    Back to Login
-                </Button>
-            </Space>
         </div>
     );
 };

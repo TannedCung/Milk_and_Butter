@@ -1,20 +1,30 @@
 .google-login-button {
-    background-color: #fff;
-    color: #000;
-    border: 2px solid #000;
-    padding: 10px 20px;
+    background-color: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    padding: 0.75rem 1.25rem;
     cursor: pointer;
-    border-radius: 15px;
-    font-size: 16px;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
-    box-sizing: border-box; /* Ensure padding and border are part of the element's size */
-    appearance: none; /* Remove default button styles */
-    outline: none; /* Remove default focus outline */
+    box-sizing: border-box;
+    appearance: none;
+    outline: none;
+    transition: all 250ms ease;
+    width: 100%;
 }
 
 .google-login-button:hover {
-    background-color: #f5f5f5;
+    background-color: #f9fafb;
+    border-color: #9ca3af;
+    color: #111827;
+}
+
+.google-login-button:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
 }

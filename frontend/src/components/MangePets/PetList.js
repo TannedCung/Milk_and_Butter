@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { fetchPets, fetchPetById, updatePet, deletePet, createPet, fetchPetAvatar } from '../../services/api';
 import { Table, Typography, Avatar, Modal, Button, Pagination, Popconfirm, message } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import PetForm from './PetForm';
 
@@ -17,6 +18,7 @@ const calculateAge = (dateOfBirth) => {
 };
 
 const PetList = () => {
+    const navigate = useNavigate();
     const [pets, setPets] = useState([]);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -73,18 +75,26 @@ const PetList = () => {
         }
     };
 
-    const handleEditOk = async (values) => {
+    const handleEditOk = async (formData) => {
         try {
-            const formattedValues = {
-                ...values,
-                date_of_birth: values.date_of_birth ? values.date_of_birth.format('YYYY-MM-DD') : null,
-            };
-            await updatePet(selectedPet.id, formattedValues);
+            console.log("Updating pet with FormData");
+            const response = await updatePet(selectedPet.id, formData);
+            console.log("Pet updated successfully:", response);
+            
+            // Refresh the pets list
+            fetchPetsData(pagination.current, pagination.pageSize);
             setIsEditModalVisible(false);
-            const updatedPets = pets.map(pet => (pet.id === selectedPet.id ? { ...pet, ...formattedValues } : pet));
-            setPets(updatedPets);
+            setSelectedPet(null);
+            message.success("Pet updated successfully!");
         } catch (error) {
             console.error('Error updating pet:', error);
+            if (error.response && error.response.data) {
+                console.error('Validation errors:', error.response.data);
+                const errorMessages = Object.values(error.response.data).flat();
+                message.error(`Failed to update pet: ${errorMessages.join(', ')}`);
+            } else {
+                message.error("Failed to update pet. Please try again.");
+            }
         }
     };
 
@@ -98,18 +108,25 @@ const PetList = () => {
         setIsAddModalVisible(true);
     };
 
-    const handleAddOk = async (values) => {
+    const handleAddOk = async (formData) => {
         try {
-            const formattedValues = {
-                ...values,
-                date_of_birth: values.date_of_birth ? values.date_of_birth.format('YYYY-MM-DD') : null,
-            };
-            // Call the API to add a new pet (assuming an addPet function exists)
-            const newPet = await createPet(formattedValues);
-            setPets([...pets, newPet]); // Add the new pet to the list
+            console.log("Adding pet with FormData");
+            const response = await createPet(formData);
+            console.log("Pet created successfully:", response);
+            
+            // Refresh the pets list
+            fetchPetsData(pagination.current, pagination.pageSize);
             setIsAddModalVisible(false);
+            message.success("Pet added successfully!");
         } catch (error) {
             console.error('Error adding pet:', error);
+            if (error.response && error.response.data) {
+                console.error('Validation errors:', error.response.data);
+                const errorMessages = Object.values(error.response.data).flat();
+                message.error(`Failed to add pet: ${errorMessages.join(', ')}`);
+            } else {
+                message.error("Failed to add pet. Please try again.");
+            }
         }
     };
 
@@ -162,6 +179,12 @@ const PetList = () => {
             key: 'actions',
             render: (_, pet) => (
                 <div style={{ display: 'flex', gap: '10px' }}>
+                    <Button 
+                        type="text" 
+                        icon={<EyeOutlined />} 
+                        onClick={() => navigate(`/pet-detail/${pet.id}`)}
+                        title="View Details"
+                    />
                     <Button type="text" icon={<EditOutlined />} onClick={() => handleEditClick(pet.id)} />
                     <Popconfirm title="Are you sure to delete this pet?" onConfirm={() => handleDelete(pet.id)}>
                         <Button type="text" icon={<DeleteOutlined />} danger />
@@ -172,10 +195,10 @@ const PetList = () => {
     ];
 
     return (
-        <div className="pet-list-container" style={{ padding: '20px', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
-            <Title level={3} style={{ color: '#000', marginBottom: '20px' }}>Pet List</Title>
+        <div className="pet-list-container">
+            <Title level={3} className="pet-list-title">Pet List</Title>
             
-            <Button type="primary" onClick={handleAddPet} icon={<PlusOutlined />} style={{ marginBottom: '20px', backgroundColor: '#000', borderColor: '#000', color: '#fff' }}>
+            <Button type="primary" onClick={handleAddPet} icon={<PlusOutlined />} className="btn-primary pet-list-add-btn">
                 Add New Pet
             </Button>
 

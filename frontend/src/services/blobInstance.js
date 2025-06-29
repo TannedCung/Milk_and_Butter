@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Create an instance of Axios
 const blobInstance = axios.create({
-    baseURL: process.env.REACT_APP_API_URL, // Set your API base URL
+    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8001', // Set your API base URL
     responseType: 'blob',
 });
 
