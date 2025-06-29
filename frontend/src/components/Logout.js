@@ -11,24 +11,21 @@ const Logout = ({ setAuth }) => {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         
+        // Clear the app loaded flag to ensure proper routing on next login
+        sessionStorage.removeItem('app_loaded');
+        
         // Clear authentication state
         setAuth({ user: null, isAuthenticated: false });
 
-        // Optionally redirect to login page or home page
-        navigate('/'); // Use navigate to redirect
+        // Redirect to login page
+        navigate('/');
     };
 
     return (
         <Button 
             onClick={handleLogout} 
             type="default" 
-            style={{ 
-                backgroundColor: '#fff', 
-                borderColor: '#000', 
-                color: '#000',
-                borderRadius: '4px',
-                margin: '16px 0'
-            }}
+            className="btn-secondary logout-button"
         >
             Logout
         </Button>

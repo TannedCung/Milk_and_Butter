@@ -29,14 +29,26 @@ const PetDetail = () => {
     const [avatarUrl, setAvatarUrl] = useState(null);
     const [loading, setLoading] = useState(true);
     
-    // Health status state
+    // Health status state with pagination
     const [healthRecords, setHealthRecords] = useState([]);
+    const [healthPagination, setHealthPagination] = useState({
+        current: 1,
+        pageSize: 10,
+        total: 0
+    });
+    const [healthLoading, setHealthLoading] = useState(false);
     const [healthModalVisible, setHealthModalVisible] = useState(false);
     const [healthForm] = Form.useForm();
     const [editingHealth, setEditingHealth] = useState(null);
     
-    // Vaccination state
+    // Vaccination state with pagination
     const [vaccinations, setVaccinations] = useState([]);
+    const [vaccinationPagination, setVaccinationPagination] = useState({
+        current: 1,
+        pageSize: 10,
+        total: 0
+    });
+    const [vaccinationLoading, setVaccinationLoading] = useState(false);
     const [vaccinationModalVisible, setVaccinationModalVisible] = useState(false);
     const [vaccinationForm] = Form.useForm();
     const [editingVaccination, setEditingVaccination] = useState(null);
@@ -65,31 +77,61 @@ const PetDetail = () => {
         }
     }, [id]);
 
-    // Fetch health records
-    const fetchHealthRecords = useCallback(async () => {
+    // Fetch health records with pagination
+    const fetchHealthRecords = useCallback(async (page = 1, pageSize = 10) => {
         try {
-            const { data } = await fetchHealthStatus(id);
+            setHealthLoading(true);
+            const { data } = await fetchHealthStatus(id, page, pageSize);
             setHealthRecords(data.results || []);
+            setHealthPagination(prev => ({
+                ...prev,
+                current: page,
+                pageSize: pageSize,
+                total: data.count || 0
+            }));
         } catch (error) {
             console.error('Error fetching health records:', error);
+            message.error('Failed to load health records');
+        } finally {
+            setHealthLoading(false);
         }
     }, [id]);
 
-    // Fetch vaccinations
-    const fetchVaccinationRecords = useCallback(async () => {
+    // Fetch vaccinations with pagination
+    const fetchVaccinationRecords = useCallback(async (page = 1, pageSize = 10) => {
         try {
-            const { data } = await fetchVaccinations(id);
+            setVaccinationLoading(true);
+            const { data } = await fetchVaccinations(id, page, pageSize);
             setVaccinations(data.results || []);
+            setVaccinationPagination(prev => ({
+                ...prev,
+                current: page,
+                pageSize: pageSize,
+                total: data.count || 0
+            }));
         } catch (error) {
             console.error('Error fetching vaccinations:', error);
+            message.error('Failed to load vaccinations');
+        } finally {
+            setVaccinationLoading(false);
         }
     }, [id]);
 
     useEffect(() => {
         fetchPetData();
-        fetchHealthRecords();
-        fetchVaccinationRecords();
+        fetchHealthRecords(1, 10);
+        fetchVaccinationRecords(1, 10);
     }, [fetchPetData, fetchHealthRecords, fetchVaccinationRecords]);
+
+    // Handle health table pagination change
+    const handleHealthTableChange = (pagination) => {
+        fetchHealthRecords(pagination.current, pagination.pageSize);
+    };
+
+    // Handle vaccination table pagination change
+    const handleVaccinationTableChange = (pagination) => {
+        fetchVaccinationRecords(pagination.current, pagination.pageSize);
+    };
 
     // Health status management
     const showHealthModal = (record = null) => {
@@ -123,7 +165,8 @@ const PetDetail = () => {
             }
 
             setHealthModalVisible(false);
-            fetchHealthRecords();
+            // Refresh current page
+            fetchHealthRecords(healthPagination.current, healthPagination.pageSize);
         } catch (error) {
             console.error('Error saving health record:', error);
             message.error('Failed to save health record');
@@ -134,7 +177,8 @@ const PetDetail = () => {
         try {
             await deleteHealthStatus(recordId);
             message.success('Health record deleted successfully');
-            fetchHealthRecords();
+            // Refresh current page
+            fetchHealthRecords(healthPagination.current, healthPagination.pageSize);
         } catch (error) {
             console.error('Error deleting health record:', error);
             message.error('Failed to delete health record');
@@ -174,7 +218,8 @@ const PetDetail = () => {
             }
 
             setVaccinationModalVisible(false);
-            fetchVaccinationRecords();
+            // Refresh current page
+            fetchVaccinationRecords(vaccinationPagination.current, vaccinationPagination.pageSize);
         } catch (error) {
             console.error('Error saving vaccination:', error);
             message.error('Failed to save vaccination');
@@ -185,7 +230,8 @@ const PetDetail = () => {
         try {
             await deleteVaccination(recordId);
             message.success('Vaccination deleted successfully');
-            fetchVaccinationRecords();
+            // Refresh current page
+            fetchVaccinationRecords(vaccinationPagination.current, vaccinationPagination.pageSize);
         } catch (error) {
             console.error('Error deleting vaccination:', error);
             message.error('Failed to delete vaccination');
@@ -282,7 +328,7 @@ const PetDetail = () => {
                         onClick={() => showVaccinationModal(record)}
                     />
                     <Popconfirm
-                        title="Are you sure to delete this vaccination record?"
+                        title="Are you sure to delete this vaccination?"
                         onConfirm={() => handleDeleteVaccination(record.id)}
                     >
                         <Button type="text" icon={<DeleteOutlined />} danger />
@@ -327,35 +373,39 @@ const PetDetail = () => {
                             <Avatar 
                                 size={120} 
                                 src={avatarUrl} 
-                                style={{ marginBottom: '10px' }}
+                                style={{ marginBottom: '16px' }}
                             />
-                            <div>
-                                <Title level={3} style={{ margin: 0 }}>{pet.name}</Title>
-                                <Text type="secondary">{pet.species}</Text>
-                            </div>
                         </div>
                     </Col>
                     <Col xs={24} sm={16} md={18}>
                         <Row gutter={[16, 16]}>
-                            <Col xs={24} sm={12}>
-                                <Text strong>Age: </Text>
-                                <Text>{calculateAge(pet.date_of_birth)}</Text>
+                            <Col span={12}>
+                                <Text strong>Name:</Text>
+                                <Title level={4} style={{ margin: '4px 0 16px 0' }}>{pet.name}</Title>
                             </Col>
-                            <Col xs={24} sm={12}>
-                                <Text strong>Gender: </Text>
-                                <Text>{pet.gender || 'Unknown'}</Text>
+                            <Col span={12}>
+                                <Text strong>Species:</Text>
+                                <Title level={4} style={{ margin: '4px 0 16px 0' }}>{pet.species}</Title>
                             </Col>
-                            <Col xs={24} sm={12}>
-                                <Text strong>Color: </Text>
-                                <Text>{pet.color || 'Not specified'}</Text>
+                            <Col span={12}>
+                                <Text strong>Age:</Text>
+                                <Title level={4} style={{ margin: '4px 0 16px 0' }}>{calculateAge(pet.date_of_birth)}</Title>
                             </Col>
-                            <Col xs={24} sm={12}>
-                                <Text strong>Microchip: </Text>
-                                <Text>{pet.microchip_number || 'Not registered'}</Text>
+                            <Col span={12}>
+                                <Text strong>Gender:</Text>
+                                <Title level={4} style={{ margin: '4px 0 16px 0' }}>{pet.gender}</Title>
                             </Col>
-                            <Col xs={24}>
-                                <Text strong>Medical Conditions: </Text>
-                                <Text>{pet.medical_conditions || 'None reported'}</Text>
+                            <Col span={12}>
+                                <Text strong>Color:</Text>
+                                <Title level={4} style={{ margin: '4px 0 16px 0' }}>{pet.color}</Title>
+                            </Col>
+                            <Col span={12}>
+                                <Text strong>Microchip:</Text>
+                                <Title level={4} style={{ margin: '4px 0 16px 0' }}>{pet.microchip_number || 'Not available'}</Title>
+                            </Col>
+                            <Col span={24}>
+                                <Text strong>Medical Conditions:</Text>
+                                <Title level={4} style={{ margin: '4px 0 16px 0' }}>{pet.medical_conditions || 'None'}</Title>
                             </Col>
                         </Row>
                     </Col>
@@ -387,7 +437,17 @@ const PetDetail = () => {
                             columns={healthColumns}
                             dataSource={healthRecords}
                             rowKey="id"
-                            pagination={{ pageSize: 10 }}
+                            loading={healthLoading}
+                            pagination={{
+                                current: healthPagination.current,
+                                pageSize: healthPagination.pageSize,
+                                total: healthPagination.total,
+                                showSizeChanger: true,
+                                showQuickJumper: true,
+                                showTotal: (total, range) =>
+                                    `${range[0]}-${range[1]} of ${total} health records`,
+                            }}
+                            onChange={handleHealthTableChange}
                         />
                     </TabPane>
                     
@@ -413,7 +473,17 @@ const PetDetail = () => {
                             columns={vaccinationColumns}
                             dataSource={vaccinations}
                             rowKey="id"
-                            pagination={{ pageSize: 10 }}
+                            loading={vaccinationLoading}
+                            pagination={{
+                                current: vaccinationPagination.current,
+                                pageSize: vaccinationPagination.pageSize,
+                                total: vaccinationPagination.total,
+                                showSizeChanger: true,
+                                showQuickJumper: true,
+                                showTotal: (total, range) =>
+                                    `${range[0]}-${range[1]} of ${total} vaccinations`,
+                            }}
+                            onChange={handleVaccinationTableChange}
                         />
                     </TabPane>
                 </Tabs>

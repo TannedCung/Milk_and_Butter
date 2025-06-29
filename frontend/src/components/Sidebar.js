@@ -27,7 +27,7 @@ const Sidebar = ({ setAuth }) => {
                 style={{ border: 'none', textAlign: 'left' }}
             >
                 <Menu.Item key="1" icon={<DashboardOutlined />}>
-                    <Link to="/">
+                    <Link to="/dashboard">
                         <span className="icon"></span>
                         <span className="link-text">Dashboard</span>
                     </Link>

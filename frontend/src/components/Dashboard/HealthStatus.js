@@ -185,7 +185,7 @@ const HealthStatus = ({ selectedPets, filter, setSelectedPets, setFilter }) => {
                     <Tabs defaultActiveKey="weight">
                         <TabPane tab="Weight" key="weight">
                             <Line
-                                data={createChartData('weight')}
+                                data={createChartData('Weight')}
                                 options={{
                                     responsive: true,
                                     plugins: {
@@ -220,7 +220,7 @@ const HealthStatus = ({ selectedPets, filter, setSelectedPets, setFilter }) => {
                         </TabPane>
                         <TabPane tab="Length" key="length">
                             <Line
-                                data={createChartData('length')}
+                                data={createChartData('Length')}
                                 options={{
                                     responsive: true,
                                     plugins: {

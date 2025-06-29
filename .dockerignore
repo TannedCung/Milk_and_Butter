@@ -1,70 +1,70 @@
-# MilkandButter .gitignore
-# Comprehensive ignore patterns for Django + React production application
+# Root .dockerignore
+# Global patterns for Docker builds from project root
 
 # ==============================================================================
-# Python/Django
+# Version Control
 # ==============================================================================
+.git/
+.gitignore
+.gitattributes
+.gitmodules
+git_bk/
+
+# ==============================================================================
+# Development & Build Artifacts
+# ==============================================================================
+node_modules/
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
-__pycache__/
 *.so
 .Python
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+.eggs/
 
-# Django
-db.sqlite3
-db.sqlite3-journal
+# ==============================================================================
+# Databases & Media
+# ==============================================================================
+*.sqlite3
+*.db
 media/
 staticfiles/
-static/
+backups/
+*.sql
+*.dump
+
+# ==============================================================================
+# Logs & Debugging
+# ==============================================================================
 *.log
-local_settings.py
-
-# Django migrations (uncomment if you want to ignore migrations)
-# */migrations/*.py
-# !*/migrations/__init__.py
-
-# ==============================================================================
-# Node.js/React
-# ==============================================================================
-/frontend/node_modules/
-/frontend/npm-debug.log*
-/frontend/yarn-debug.log*
-/frontend/yarn-error.log*
-/frontend/build/
-/frontend/.pnp
-/frontend/.pnp.js
-/frontend/coverage/
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # ==============================================================================
-# Environment Variables & Secrets
+# Environment & Secrets
 # ==============================================================================
-.env
+.env*
+*.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
-.env.production
-backend/.env
-backend/.env.production
-frontend/.env
-frontend/.env.production
+backend/.env*
+frontend/.env*
+
+# ==============================================================================
+# SSL Certificates
+# ==============================================================================
+nginx/ssl/
+*.pem
+*.key
+*.crt
+*.csr
 
 # ==============================================================================
 # IDEs & Editors
@@ -74,8 +74,6 @@ frontend/.env.production
 *.swp
 *.swo
 *~
-.DS_Store
-Thumbs.db
 
 # ==============================================================================
 # OS Generated Files
@@ -87,124 +85,90 @@ Thumbs.db
 .Trashes
 ehthumbs.db
 Thumbs.db
+Desktop.ini
+
+# ==============================================================================
+# Testing & Coverage
+# ==============================================================================
+coverage/
+.coverage
+.coverage.*
+htmlcov/
+.nyc_output
+.pytest_cache/
+.cache
+
+# ==============================================================================
+# Documentation
+# ==============================================================================
+docs/
+*.md
+README*
+CHANGELOG*
+LICENSE*
 
 # ==============================================================================
 # Docker
 # ==============================================================================
-# Note: .dockerignore files are tracked in version control
+Dockerfile*
+.dockerignore
+docker-compose*.yml
 
 # ==============================================================================
-# Production & Deployment
+# CI/CD
 # ==============================================================================
-/backups/
-*.tar.gz
-*.zip
-*.sql
-*.dump
-
-# SSL Certificates
-nginx/ssl/
-*.pem
-*.key
-*.crt
-*.csr
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+Jenkinsfile
 
 # ==============================================================================
-# Logs
+# Temporary & Backup Files
 # ==============================================================================
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.npm
-.eslintcache
+*.tmp
+*.bak
+*.backup
+*.old
+*~
+.temp/
+temp/
 
 # ==============================================================================
-# Testing
+# Deployment Scripts
 # ==============================================================================
-.nyc_output
-.coverage
-htmlcov/
-.tox/
-.nox/
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# ==============================================================================
-# Jupyter Notebook
-# ==============================================================================
-.ipynb_checkpoints
-
-# ==============================================================================
-# pyenv
-# ==============================================================================
-.python-version
-
-# ==============================================================================
-# pipenv
-# ==============================================================================
-Pipfile.lock
-
-# ==============================================================================
-# PEP 582
-# ==============================================================================
-__pypackages__/
-
-# ==============================================================================
-# Celery
-# ==============================================================================
-celerybeat-schedule
-celerybeat.pid
-
-# ==============================================================================
-# SageMath parsed files
-# ==============================================================================
-*.sage.py
-
-# ==============================================================================
-# Spyder project settings
-# ==============================================================================
-.spyderproject
-.spyproject
-
-# ==============================================================================
-# Rope project settings
-# ==============================================================================
-.ropeproject
-
-# ==============================================================================
-# mkdocs documentation
-# ==============================================================================
-/site
-
-# ==============================================================================
-# mypy
-# ==============================================================================
-.mypy_cache/
-.dmypy.json
-dmypy.json
+deploy.sh
+backup.sh
 
 # ==============================================================================
 # Project Specific
 # ==============================================================================
 pet_avatars/
 tag_proof/
-git_bk/
 
 # ==============================================================================
-# Temporary files
+# Package Managers
 # ==============================================================================
-*.tmp
-*.temp
-.temp/
-temp/
+.npm
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# ==============================================================================
+# Frontend Build
+# ==============================================================================
+frontend/build/
+frontend/node_modules/
+
+# ==============================================================================
+# Backend Virtual Environment
+# ==============================================================================
+venv/
+ENV/
+env/
+.venv/
 
 # ==============================================================================
 # Modern Development Tools
@@ -215,56 +179,32 @@ temp/
 # GitHub Copilot
 .copilot/
 
-# AI/ML model files
-*.pkl
-*.model
-*.h5
-*.pb
-*.onnx
+# Performance profiles
+*.prof
+.profiling/
 
 # ==============================================================================
-# Security & Sensitive Data
+# Additional Security
 # ==============================================================================
-# API Keys and tokens
 .secrets
 secrets/
 **/secrets/
 .auth
 .token
-*.pem.backup
-*.key.backup
-
-# Database exports
-*.dump
-*.sql.gz
-*.bak
 
 # ==============================================================================
-# Performance & Monitoring
+# Test Results & Coverage (Additional)
 # ==============================================================================
-# Performance profiles
-*.prof
-.profiling/
-
-# Monitoring data
-monitoring/
-metrics/
+test-results/
+playwright-report/
+.nyc_output/
 
 # ==============================================================================
-# Container & Infrastructure
+# Build Optimization
 # ==============================================================================
-# Kubernetes
-k8s-secrets/
-*.kubeconfig
+# Source maps (for production)
+*.map
 
-# Terraform
-*.tfstate
-*.tfstate.backup
-.terraform/
-.terraform.lock.hcl
-
-# ==============================================================================
-# Package Lock Files (optional - uncomment if needed)
-# ==============================================================================
-# package-lock.json
-# yarn.lock
+# Webpack stats
+stats.json
+webpack-stats.json 
