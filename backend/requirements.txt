@@ -10,4 +10,19 @@ django-cors-headers==4.3.1
 django-allauth==0.53.0
 dj-rest-auth==2.2.8
 google-api-python-client==2.145.0
+google-auth==2.40.3
+google-auth-oauthlib==1.2.2
 python-dotenv==1.0.1
+
+# Production-specific packages
+gunicorn==21.2.0  # WSGI HTTP Server for production
+whitenoise==6.6.0  # Static file serving
+django-redis==5.4.0  # Redis cache backend
+redis==5.0.1  # Redis client
+celery==5.3.4  # Background task processing
+django-celery-beat==2.5.0  # Periodic task scheduler
+django-celery-results==2.5.1  # Task result backend
+django-environ==0.11.2  # Environment variable management
+django-compressor==4.4  # CSS/JS compression
+django-extensions==3.2.3  # Useful Django extensions
+django-health-check==3.17.0  # Health check endpoints

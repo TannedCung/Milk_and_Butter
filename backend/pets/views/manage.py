@@ -16,7 +16,7 @@ from django.http import FileResponse
 import os
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
-from ..pagination.manage import VaccinationPagination  # Import the custom pagination
+from ..pagination.manage import VaccinationPagination, HealthStatusPagination  # Import the custom pagination
 
 
 class VaccinationViewSet(viewsets.ModelViewSet):
@@ -29,7 +29,11 @@ class VaccinationViewSet(viewsets.ModelViewSet):
     pagination_class = VaccinationPagination
 
     def get_queryset(self):
-        return Vaccination.objects.filter(pet__owner=self.request.user)
+        queryset = Vaccination.objects.filter(pet__owner=self.request.user)
+        pet_id = self.request.query_params.get('pet', None)
+        if pet_id is not None:
+            queryset = queryset.filter(pet=pet_id)
+        return queryset
 
     def get_object(self):
         try:
@@ -48,6 +52,20 @@ class PetViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # Only return the pets that belong to the logged-in user (owner)
         return Pet.objects.filter(owner=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        # Log request data for debugging
+        print(f"Pet creation request data: {request.data}")
+        print(f"Pet creation request files: {request.FILES}")
+        
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            print(f"Validation errors: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
         # Automatically assign the logged-in user as the owner of the pet
@@ -75,9 +93,14 @@ class HealthStatusViewSet(viewsets.ModelViewSet):
     queryset = HealthStatus.objects.all()
     serializer_class = HealthStatusSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = HealthStatusPagination
 
     def get_queryset(self):
-        return HealthStatus.objects.filter(pet__owner=self.request.user)
+        queryset = HealthStatus.objects.filter(pet__owner=self.request.user)
+        pet_id = self.request.query_params.get('pet', None)
+        if pet_id is not None:
+            queryset = queryset.filter(pet=pet_id)
+        return queryset
 
     def perform_create(self, serializer):
         pet = serializer.validated_data['pet']
