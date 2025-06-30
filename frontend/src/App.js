@@ -114,12 +114,14 @@ const App = () => {
 
   return (
     <div className="container full-width-container">
-      <header>
-        <div className="header-content">
-          <img src="/logo.jpg" alt="MilkandButter Logo" className="app-logo" />
-          <h1>MilkandButter</h1>
-        </div>
-      </header>
+      {auth.isAuthenticated && (
+        <header>
+          <div className="header-content">
+            <img src="/logo.jpg" alt="MilkandButter Logo" className="app-logo" />
+            <h1>MilkandButter</h1>
+          </div>
+        </header>
+      )}
       <main className="full-width-main">
         {auth.isAuthenticated ? (
           <div className="app-content full-width-content animate-stagger">
@@ -146,9 +148,11 @@ const App = () => {
           </div>
         )}
       </main>
-      <footer>
-        <p>&copy; 2024 MilkandButter</p>
-      </footer>
+      {auth.isAuthenticated && (
+        <footer>
+          <p>&copy; 2024 MilkandButter</p>
+        </footer>
+      )}
     </div>
   );
 };

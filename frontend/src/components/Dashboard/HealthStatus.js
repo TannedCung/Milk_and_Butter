@@ -19,44 +19,62 @@ const getPetColor = (index) => petColors[index % petColors.length];
 const HealthStatus = ({ selectedPets, filter, setSelectedPets, setFilter }) => {
     const [pets, setPets] = useState([]);
     const [healthData, setHealthData] = useState({});
+    const [loading, setLoading] = useState(false);
 
-    const fetchPets = useCallback(async () => {
+    const fetchPetsWithHealthData = useCallback(async () => {
         try {
+            setLoading(true);
             const response = await axiosInstance.get(`/api/pets/`);
-            setPets(response.data.results);
-            setSelectedPets(response.data.results.map(pet => pet.id));
+            const petsData = response.data.results || response.data;
+            
+            setPets(petsData);
+            setSelectedPets(petsData.map(pet => pet.id));
             setFilter('all');
+            
+            // Process health data from the pets response
+            const healthDataMap = {};
+            petsData.forEach(pet => {
+                if (pet.health_attributes && pet.health_attributes.length > 0) {
+                    healthDataMap[pet.id] = pet.health_attributes;
+                }
+            });
+            
+            setHealthData(healthDataMap);
+            console.log("Pets with health data:", petsData);
+            console.log("Processed health data:", healthDataMap);
         } catch (error) {
-            console.error('Failed to fetch pets:', error);
+            console.error('Failed to fetch pets with health data:', error);
+        } finally {
+            setLoading(false);
         }
     }, [setSelectedPets, setFilter]);
 
     useEffect(() => {
-        fetchPets();
-    }, [fetchPets]);
+        fetchPetsWithHealthData();
+    }, [fetchPetsWithHealthData]);
 
-    const fetchHealthData = useCallback(async (selectedPetIds, filter) => {
-        try {
-            const petData = {};
-            selectedPetIds.forEach(petId => {
-                const pet = pets.find(p => p.id === petId);
-                if (pet && pet.health_attributes) {
-                    petData[petId] = pet.health_attributes;
-                }
-            });
+    // Filter health data based on time duration
+    const getFilteredHealthData = useCallback((petHealthData, filterType) => {
+        if (!petHealthData || petHealthData.length === 0) return [];
         
-            setHealthData(petData);
-            console.log("Updated Health Data:", petData);
-        } catch (error) {
-            console.error('Failed to fetch health data:', error);
+        const now = new Date();
+        let filterDate;
+        
+        switch (filterType) {
+            case 'last7':
+                filterDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                break;
+            case 'last30':
+                filterDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                break;
+            default:
+                return petHealthData;
         }
-    }, [pets]);
-
-    useEffect(() => {
-        if (selectedPets.length > 0) {
-            fetchHealthData(selectedPets, filter);
-        }
-    }, [selectedPets, filter, fetchHealthData]);
+        
+        return petHealthData.filter(record => 
+            new Date(record.measured_at || record.created_at) >= filterDate
+        );
+    }, []);
 
     const handlePetChange = (checkedValues) => {
         setSelectedPets(checkedValues);
@@ -66,29 +84,40 @@ const HealthStatus = ({ selectedPets, filter, setSelectedPets, setFilter }) => {
         setFilter(value);
     };
 
-    // Define the createChartData function here
+    // Define the createChartData function with proper data filtering
     const createChartData = (attribute) => {
+        const allLabels = new Set();
+        
+        const datasets = selectedPets.map((petId, index) => {
+            const petData = healthData[petId] || [];
+            const filteredData = getFilteredHealthData(petData, filter);
+            const records = filteredData
+                .filter(attr => attr.attribute_name === attribute && attr.value !== null && attr.value !== undefined)
+                .sort((a, b) => new Date(a.measured_at || a.created_at) - new Date(b.measured_at || b.created_at));
+            
+            // Add labels to the set
+            records.forEach(record => {
+                const date = new Date(record.measured_at || record.created_at).toLocaleDateString();
+                allLabels.add(date);
+            });
+
+            return {
+                label: pets.find(pet => pet.id === petId)?.name || `Pet ${petId}`,
+                data: records.map(record => ({
+                    x: new Date(record.measured_at || record.created_at).toLocaleDateString(),
+                    y: record.value
+                })),
+                borderColor: getPetColor(index),
+                backgroundColor: getPetColor(index),
+                borderWidth: 2,
+                fill: false,
+                tension: 0.1,
+            };
+        });
+
         return {
-            labels: [],
-            datasets: selectedPets.map((petId, index) => {
-                const petData = healthData[petId] || [];
-                const records = petData
-                    .filter(attr => attr.attribute_name === attribute)
-                    .sort((a, b) => new Date(a.measured_at) - new Date(b.measured_at));
-    
-                return {
-                    label: pets.find(pet => pet.id === petId)?.name || '',
-                    data: records.map(record => ({
-                        x: new Date(record.measured_at).toLocaleDateString(),
-                        y: record.value
-                    })),
-                    borderColor: getPetColor(index),
-                    backgroundColor: getPetColor(index),
-                    borderWidth: 2,
-                    fill: false,
-                    tension: 0.1,
-                };
-            }),
+            labels: Array.from(allLabels).sort(),
+            datasets: datasets.filter(dataset => dataset.data.length > 0), // Only include datasets with data
         };
     };
 
@@ -96,7 +125,8 @@ const HealthStatus = ({ selectedPets, filter, setSelectedPets, setFilter }) => {
         const moodData = {};
         selectedPets.forEach(petId => {
             const petData = healthData[petId] || [];
-            petData.forEach(record => {
+            const filteredData = getFilteredHealthData(petData, filter);
+            filteredData.forEach(record => {
                 if (record.attribute_name === 'Mood' && record.mood) {
                     moodData[record.mood] = (moodData[record.mood] || 0) + 1;
                 }
@@ -116,7 +146,8 @@ const HealthStatus = ({ selectedPets, filter, setSelectedPets, setFilter }) => {
         const coatConditionData = {};
         selectedPets.forEach(petId => {
             const petData = healthData[petId] || [];
-            petData.forEach(record => {
+            const filteredData = getFilteredHealthData(petData, filter);
+            filteredData.forEach(record => {
                 if (record.attribute_name === 'Coat Condition' && record.coat_condition) {
                     coatConditionData[record.coat_condition] = (coatConditionData[record.coat_condition] || 0) + 1;
                 }
@@ -136,9 +167,13 @@ const HealthStatus = ({ selectedPets, filter, setSelectedPets, setFilter }) => {
         const activityLevelData = {};
         selectedPets.forEach(petId => {
             const petData = healthData[petId] || [];
-            petData.forEach(record => {
+            const filteredData = getFilteredHealthData(petData, filter);
+            filteredData.forEach(record => {
                 if (record.attribute_name === 'Activity Level' && record.value) {
-                    activityLevelData[record.value] = (activityLevelData[record.value] || 0) + 1;
+                    const activityRange = record.value < 60 ? 'Low (< 60 min)' : 
+                                        record.value < 120 ? 'Medium (60-120 min)' : 
+                                        'High (> 120 min)';
+                    activityLevelData[activityRange] = (activityLevelData[activityRange] || 0) + 1;
                 }
             });
         });
@@ -151,6 +186,22 @@ const HealthStatus = ({ selectedPets, filter, setSelectedPets, setFilter }) => {
             }],
         };
     };
+
+    // Helper function to check if chart has data
+    const hasChartData = (chartData) => {
+        return chartData.datasets && chartData.datasets.some(dataset => 
+            dataset.data && dataset.data.length > 0
+        );
+    };
+
+    const hasPieData = (pieData) => {
+        return pieData.datasets && pieData.datasets[0] && 
+               pieData.datasets[0].data && pieData.datasets[0].data.length > 0;
+    };
+
+    if (loading) {
+        return <div style={{ textAlign: 'center', padding: '50px' }}>Loading health data...</div>;
+    }
 
     return (
         <div className="main-content" style={{ padding: '0px', backgroundColor: '#fff', borderRadius: '12px' }}>
@@ -184,74 +235,100 @@ const HealthStatus = ({ selectedPets, filter, setSelectedPets, setFilter }) => {
                 <Card title="Metrics Overview" className="graph-container">
                     <Tabs defaultActiveKey="weight">
                         <TabPane tab="Weight" key="weight">
-                            <Line
-                                data={createChartData('Weight')}
-                                options={{
-                                    responsive: true,
-                                    plugins: {
-                                        legend: { position: 'top' },
-                                        tooltip: {
-                                            callbacks: {
-                                                label: function (tooltipItem) {
-                                                    return `${tooltipItem.dataset.label}: ${tooltipItem.raw.y}`;
+                            {hasChartData(createChartData('Weight')) ? (
+                                <Line
+                                    data={createChartData('Weight')}
+                                    options={{
+                                        responsive: true,
+                                        plugins: {
+                                            legend: { position: 'top' },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function (tooltipItem) {
+                                                        return `${tooltipItem.dataset.label}: ${tooltipItem.raw.y} kg`;
+                                                    }
                                                 }
                                             }
-                                        }
-                                    },
-                                    scales: { x: { ticks: { maxRotation: 90, minRotation: 45 } }, y: { 
-                                        beginAtZero: true,
-                                        grid: {
-                                            color: "rgba(225, 255, 255, 0.02)", // Grid line color
-                                            lineWidth: 2 // Width of the grid lines
-                                        }
-                                    } },
-                                    elements: {
-                                        point: {
-                                            radius: 5, // Radius of the data points
-                                            borderWidth: 1 // Border width of the data points
                                         },
-                                        line: {
-                                            borderWidth: 3, // Width of the line
-                                            tension: 0.8 // Smooth line effect
+                                        scales: { 
+                                            x: { 
+                                                ticks: { maxRotation: 90, minRotation: 45 },
+                                                title: { display: true, text: 'Date' }
+                                            }, 
+                                            y: { 
+                                                beginAtZero: false,
+                                                title: { display: true, text: 'Weight (kg)' },
+                                                grid: {
+                                                    color: "rgba(225, 255, 255, 0.02)",
+                                                    lineWidth: 2
+                                                }
+                                            } 
+                                        },
+                                        elements: {
+                                            point: {
+                                                radius: 5,
+                                                borderWidth: 1
+                                            },
+                                            line: {
+                                                borderWidth: 3,
+                                                tension: 0.1
+                                            }
                                         }
-                                    }
-                                }}
-                            />
+                                    }}
+                                />
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+                                    <p>No weight data available for the selected pets and time period.</p>
+                                </div>
+                            )}
                         </TabPane>
                         <TabPane tab="Length" key="length">
-                            <Line
-                                data={createChartData('Length')}
-                                options={{
-                                    responsive: true,
-                                    plugins: {
-                                        legend: { position: 'top' },
-                                        tooltip: {
-                                            callbacks: {
-                                                label: function (tooltipItem) {
-                                                    return `${tooltipItem.dataset.label}: ${tooltipItem.raw.y}`;
+                            {hasChartData(createChartData('Length')) ? (
+                                <Line
+                                    data={createChartData('Length')}
+                                    options={{
+                                        responsive: true,
+                                        plugins: {
+                                            legend: { position: 'top' },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function (tooltipItem) {
+                                                        return `${tooltipItem.dataset.label}: ${tooltipItem.raw.y} cm`;
+                                                    }
                                                 }
                                             }
-                                        }
-                                    },
-                                    scales: { x: { ticks: { maxRotation: 90, minRotation: 45 } }, y: { 
-                                        beginAtZero: true,
-                                        grid: {
-                                            color: "rgba(225, 255, 255, 0.02)", // Grid line color
-                                            lineWidth: 2 // Width of the grid lines
-                                        }
-                                    } },
-                                    elements: {
-                                        point: {
-                                            radius: 5, // Radius of the data points
-                                            borderWidth: 2 // Border width of the data points
                                         },
-                                        line: {
-                                            borderWidth: 3, // Width of the line
-                                            tension: 0.8 // Smooth line effect
+                                        scales: { 
+                                            x: { 
+                                                ticks: { maxRotation: 90, minRotation: 45 },
+                                                title: { display: true, text: 'Date' }
+                                            }, 
+                                            y: { 
+                                                beginAtZero: false,
+                                                title: { display: true, text: 'Length (cm)' },
+                                                grid: {
+                                                    color: "rgba(225, 255, 255, 0.02)",
+                                                    lineWidth: 2
+                                                }
+                                            } 
+                                        },
+                                        elements: {
+                                            point: {
+                                                radius: 5,
+                                                borderWidth: 2
+                                            },
+                                            line: {
+                                                borderWidth: 3,
+                                                tension: 0.1
+                                            }
                                         }
-                                    }
-                                }}
-                            />
+                                    }}
+                                />
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+                                    <p>No length data available for the selected pets and time period.</p>
+                                </div>
+                            )}
                         </TabPane>
                     </Tabs>
                 </Card>
@@ -259,7 +336,7 @@ const HealthStatus = ({ selectedPets, filter, setSelectedPets, setFilter }) => {
                 <Card title="Health Indicators" className="graph-container" style={{ marginTop: '20px' }}>
                     <Tabs defaultActiveKey="mood">
                         <TabPane tab="Mood" key="mood">
-                            {Object.keys(createMoodData().datasets[0].data).length > 0 ? (
+                            {hasPieData(createMoodData()) ? (
                                 <Pie
                                     data={createMoodData()}
                                     options={{
@@ -270,11 +347,13 @@ const HealthStatus = ({ selectedPets, filter, setSelectedPets, setFilter }) => {
                                     }}
                                 />
                             ) : (
-                                <p>No data available for Mood.</p>
+                                <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+                                    <p>No mood data available for the selected pets and time period.</p>
+                                </div>
                             )}
                         </TabPane>
                         <TabPane tab="Coat Condition" key="coat_condition">
-                            {Object.keys(createCoatConditionData().datasets[0].data).length > 0 ? (
+                            {hasPieData(createCoatConditionData()) ? (
                                 <Pie
                                     data={createCoatConditionData()}
                                     options={{
@@ -285,11 +364,13 @@ const HealthStatus = ({ selectedPets, filter, setSelectedPets, setFilter }) => {
                                     }}
                                 />
                             ) : (
-                                <p>No data available for Coat Condition.</p>
+                                <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+                                    <p>No coat condition data available for the selected pets and time period.</p>
+                                </div>
                             )}
                         </TabPane>
                         <TabPane tab="Activity Level" key="activity_level">
-                            {Object.keys(createActivityLevelData().datasets[0].data).length > 0 ? (
+                            {hasPieData(createActivityLevelData()) ? (
                                 <Pie
                                     data={createActivityLevelData()}
                                     options={{
@@ -300,7 +381,9 @@ const HealthStatus = ({ selectedPets, filter, setSelectedPets, setFilter }) => {
                                     }}
                                 />
                             ) : (
-                                <p>No data available for Activity Level.</p>
+                                <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+                                    <p>No activity data available for the selected pets and time period.</p>
+                                </div>
                             )}
                         </TabPane>
                     </Tabs>
